@@ -11,7 +11,6 @@ public class Control : MonoBehaviour
 
     private void FixedUpdate()
     {
-        print(_walk);
         var pos = transform.position + (transform.rotation * _walk * Time.fixedDeltaTime);
         pos.y = 6;
         transform.position = pos;
