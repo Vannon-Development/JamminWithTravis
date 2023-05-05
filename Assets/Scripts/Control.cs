@@ -1,4 +1,5 @@
 using System;
+using Unity.Mathematics;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -8,20 +9,32 @@ public class Control : MonoBehaviour
 
     private Vector3 _walk;
     private Vector3 _look;
+    private Vector3 _frameLook;
+    private Rigidbody _body;
+
+    private void Start()
+    {
+        _body = GetComponent<Rigidbody>();
+    }
 
     private void FixedUpdate()
     {
-        var pos = transform.position + (transform.rotation * _walk * Time.fixedDeltaTime);
-        pos.y = 6;
-        transform.position = pos;
-        if (_look.magnitude >= 0.0001)
+        _body.angularVelocity = Vector3.zero;
+        var pos = transform.rotation * _walk;
+        pos.y = 0;
+        _body.velocity = pos;
+        
+        if (_look.magnitude >= 0.0001 || _frameLook.magnitude >= 0.0001)
         {
+            var look = _look + _frameLook;
             var val = transform.rotation.eulerAngles;
             if (val.x > 180) val.x -= 360;
-            val.x = Mathf.Clamp(val.x - _look.y, -30, 30);
-            val.y += _look.x;
-            transform.rotation = Quaternion.Euler(val);
+            val.x = Mathf.Clamp(val.x - look.y, -30, 30);
+            val.y += look.x;
+            _body.MoveRotation(Quaternion.Euler(val));
         }
+
+        _frameLook = Vector3.zero;
     }
 
     private void OnLook(InputValue value)
@@ -32,15 +45,8 @@ public class Control : MonoBehaviour
 
     private void OnMouseLook(InputValue value)
     {
-        var dir = value.Get<Vector2>() * 0.6f;
-        if (dir.magnitude >= 0.0001)
-        {
-            var val = transform.rotation.eulerAngles;
-            if (val.x > 180) val.x -= 360;
-            val.x = Mathf.Clamp(val.x - dir.y, -30, 30);
-            val.y += dir.x;
-            transform.rotation = Quaternion.Euler(val);
-        }
+        var dir = value.Get<Vector2>() * 5.0f;
+        _frameLook = dir;
     }
 
     private void OnMove(InputValue value)
