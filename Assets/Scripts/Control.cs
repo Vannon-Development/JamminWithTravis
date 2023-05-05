@@ -7,15 +7,27 @@ public class Control : MonoBehaviour
     public float walkSpeed;
 
     private Vector3 _walk;
+    private Vector3 _look;
 
     private void FixedUpdate()
     {
-        transform.position += _walk * Time.deltaTime;
+        var pos = transform.position + (transform.rotation * _walk * Time.fixedTime);
+        pos.y = 6;
+        transform.position = pos;
+        if (_look.magnitude >= 0.0001)
+        {
+            var val = transform.rotation.eulerAngles;
+            if (val.x > 180) val.x -= 360;
+            val.x = Mathf.Clamp(val.x - _look.y, -30, 30);
+            val.y += _look.x;
+            transform.rotation = Quaternion.Euler(val);
+        }
     }
 
     private void OnLook(InputValue value)
     {
-        
+        var dir = value.Get<Vector2>() * 5.0f;
+        _look = dir;
     }
 
     private void OnMouseLook(InputValue value)
