@@ -45,7 +45,7 @@ public class Control : MonoBehaviour
 
     private void OnMouseLook(InputValue value)
     {
-        var dir = value.Get<Vector2>() * 5.0f;
+        var dir = value.Get<Vector2>() * 2.0f;
         _frameLook = dir;
     }
 
